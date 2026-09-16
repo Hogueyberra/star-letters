@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { initAudio, setVoiceChoice, stopSpeech, unlockAudio } from './audio'
+import { initAudio, setVoiceChoice, speakSkill, stopSpeech, unlockAudio } from './audio'
 import { unitById, type UnitKind } from './data'
 import {
   buildLetterNameQuestions,
   buildLetterSoundQuestions,
   buildMixQuestions,
   buildUnitQuestions,
+  type Question,
 } from './quiz'
 import {
   canUnlockMore,
@@ -33,6 +34,8 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>({ name: 'home' })
   const [tipsOpen, setTipsOpen] = useState(false)
   const [playNonce, setPlayNonce] = useState(0)
+  const [roundQuestions, setRoundQuestions] = useState<Question[]>([])
+  const [primedId, setPrimedId] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     initAudio()
@@ -60,6 +63,18 @@ export default function App() {
     setScreen({ name: 'home' })
   }
 
+  function startRound(next: Screen, questions: Question[]) {
+    void unlockAudio()
+    const first = questions[0]
+    if (first && !progress.muted) {
+      void speakSkill(first.skill, first.target, progress.muted)
+    }
+    setRoundQuestions(questions)
+    setPrimedId(first?.id)
+    setPlayNonce((n) => n + 1)
+    setScreen(next)
+  }
+
   function toggleMute() {
     setProgress((prev) => {
       const muted = !prev.muted
@@ -80,13 +95,12 @@ export default function App() {
           onMute={toggleMute}
           onOpenTips={() => setTipsOpen(true)}
           onPlay={(mode) => {
-            void unlockAudio().then(() => {
-              if (mode === 'letters') setScreen({ name: 'letters' })
-              else if (mode === 'sounds') setScreen({ name: 'sounds' })
-              else if (mode === 'words') setScreen({ name: 'unit-pick', kind: 'words' })
-              else if (mode === 'phrases') setScreen({ name: 'unit-pick', kind: 'phrases' })
-              else setScreen({ name: 'mix' })
-            })
+            void unlockAudio()
+            if (mode === 'letters') startRound({ name: 'letters' }, buildLetterNameQuestions(progress))
+            else if (mode === 'sounds') startRound({ name: 'sounds' }, buildLetterSoundQuestions(progress))
+            else if (mode === 'words') setScreen({ name: 'unit-pick', kind: 'words' })
+            else if (mode === 'phrases') setScreen({ name: 'unit-pick', kind: 'phrases' })
+            else startRound({ name: 'mix' }, buildMixQuestions(progress))
           }}
         />
       )}
@@ -94,28 +108,26 @@ export default function App() {
         <PlayRound
           key={`letters-${playNonce}`}
           title="Letter Names"
-          makeQuestions={() => buildLetterNameQuestions(progress)}
+          questions={roundQuestions}
+          primedId={primedId}
           progress={progress}
           onProgress={setProgress}
           onMute={toggleMute}
           onHome={goHome}
-          onAgain={() => {
-            void unlockAudio().then(() => setPlayNonce((n) => n + 1))
-          }}
+          onAgain={() => startRound({ name: 'letters' }, buildLetterNameQuestions(progress))}
         />
       )}
       {screen.name === 'sounds' && (
         <PlayRound
           key={`sounds-${playNonce}`}
           title="Letter Sounds"
-          makeQuestions={() => buildLetterSoundQuestions(progress)}
+          questions={roundQuestions}
+          primedId={primedId}
           progress={progress}
           onProgress={setProgress}
           onMute={toggleMute}
           onHome={goHome}
-          onAgain={() => {
-            void unlockAudio().then(() => setPlayNonce((n) => n + 1))
-          }}
+          onAgain={() => startRound({ name: 'sounds' }, buildLetterSoundQuestions(progress))}
         />
       )}
       {screen.name === 'unit-pick' && (
@@ -125,7 +137,7 @@ export default function App() {
           onBack={goHome}
           onMute={toggleMute}
           onChoose={(unitId) => {
-            void unlockAudio().then(() => setScreen({ name: 'unit-play', unitId, kind: screen.kind }))
+            startRound({ name: 'unit-play', unitId, kind: screen.kind }, buildUnitQuestions(unitId))
           }}
         />
       )}
@@ -133,7 +145,8 @@ export default function App() {
         <PlayRound
           key={`unit-${screen.unitId}-${playNonce}`}
           title={playingUnit?.label ?? 'Practice'}
-          makeQuestions={() => buildUnitQuestions(screen.unitId)}
+          questions={roundQuestions}
+          primedId={primedId}
           progress={progress}
           onProgress={setProgress}
           onMute={toggleMute}
@@ -141,23 +154,20 @@ export default function App() {
             stopSpeech()
             setScreen({ name: 'unit-pick', kind: screen.kind })
           }}
-          onAgain={() => {
-            void unlockAudio().then(() => setPlayNonce((n) => n + 1))
-          }}
+          onAgain={() => startRound({ name: 'unit-play', unitId: screen.unitId, kind: screen.kind }, buildUnitQuestions(screen.unitId))}
         />
       )}
       {screen.name === 'mix' && (
         <PlayRound
           key={`mix-${playNonce}`}
           title="Mix Review"
-          makeQuestions={() => buildMixQuestions(progress)}
+          questions={roundQuestions}
+          primedId={primedId}
           progress={progress}
           onProgress={setProgress}
           onMute={toggleMute}
           onHome={goHome}
-          onAgain={() => {
-            void unlockAudio().then(() => setPlayNonce((n) => n + 1))
-          }}
+          onAgain={() => startRound({ name: 'mix' }, buildMixQuestions(progress))}
         />
       )}
       <TipsDrawer

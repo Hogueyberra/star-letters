@@ -26,7 +26,8 @@ function pickPhrase(list: string[]) {
 
 export function PlayRound({
   title,
-  makeQuestions,
+  questions,
+  primedId,
   progress,
   onProgress,
   onMute,
@@ -34,14 +35,14 @@ export function PlayRound({
   onAgain,
 }: {
   title: string
-  makeQuestions: () => Question[]
+  questions: Question[]
+  primedId?: string
   progress: Progress
   onProgress: (next: Progress) => void
   onMute: () => void
   onHome: () => void
   onAgain: () => void
 }) {
-  const [questions] = useState(makeQuestions)
   const [index, setIndex] = useState(0)
   const [wrongPicks, setWrongPicks] = useState<string[]>([])
   const [status, setStatus] = useState<'playing' | 'correct' | 'done'>('playing')
@@ -54,13 +55,19 @@ export function PlayRound({
   const [tapToHear, setTapToHear] = useState(false)
   const progressRef = useRef(progress)
   progressRef.current = progress
+  const spokenRef = useRef<string | null>(primedId ?? null)
+  const indexRef = useRef(0)
+  indexRef.current = index
 
   const question = questions[index]
   const done = status === 'done' || !question
 
   const speakQuestion = useCallback((q: Question, muted: boolean) => {
-    // Letter names = phonetic clip only. Sounds = prompt clip + sound clip.
-    return speakSkill(q.skill, q.target, muted)
+    spokenRef.current = q.id
+    return speakSkill(q.skill, q.target, muted).then((played) => {
+      if (!played) setTapToHear(true)
+      return played
+    })
   }, [])
 
   const hearQuestion = useCallback(
@@ -75,17 +82,19 @@ export function PlayRound({
 
   useEffect(() => {
     if (!question || status !== 'playing') return
+    if (spokenRef.current === question.id) return
     setTapToHear(false)
     let cancelled = false
     const timer = window.setTimeout(() => {
       void whenAudioUnlocked().then((ok) => {
         if (cancelled || progressRef.current.muted) return
+        if (spokenRef.current === question.id) return
         if (!ok) {
           setTapToHear(true)
           return
         }
         void speakQuestion(question, progressRef.current.muted).then((played) => {
-          if (!cancelled && !played) setTapToHear(true)
+          if (!cancelled && !played && spokenRef.current !== question.id) setTapToHear(true)
         })
       })
     }, 280)
@@ -122,6 +131,24 @@ export function PlayRound({
     return () => window.removeEventListener('keydown', onKey)
   }, [question, status, onHome, speakQuestion, wrongPicks, streak])
 
+  function advanceAndSpeakNext() {
+    const nextIndex = indexRef.current + 1
+    const nextQuestion = questions[nextIndex]
+    if (!nextQuestion) {
+      setStatus('done')
+      setMood('cheer')
+      playFanfare(progressRef.current.muted)
+      void speakClip('ui.super_star', progressRef.current.muted)
+      return
+    }
+    setIndex(nextIndex)
+    setWrongPicks([])
+    setStatus('playing')
+    setMood('idle')
+    setTapToHear(false)
+    void speakQuestion(nextQuestion, progressRef.current.muted)
+  }
+
   function award(nextProgress: Progress, nextStreak: number) {
     void unlockAudio()
     const withStreak = recordBestStreak(nextProgress, nextStreak)
@@ -135,12 +162,15 @@ export function PlayRound({
     setStatus('correct')
     setBurstId((id) => (superStar ? id + 1 : id))
     playSparkle(withStreak.muted)
-    if (superStar) {
-      playFanfare(withStreak.muted)
-      void speakClip('ui.super_star', withStreak.muted)
-    } else if (nextStreak === 1) {
-      void speakClip('ui.you_got_it', withStreak.muted)
+    const praiseKey = superStar ? 'ui.super_star' : nextStreak === 1 ? 'ui.you_got_it' : null
+    if (superStar) playFanfare(withStreak.muted)
+    if (praiseKey && !withStreak.muted) {
+      void speakClip(praiseKey, withStreak.muted).then(() => {
+        advanceAndSpeakNext()
+      })
+      return
     }
+    advanceAndSpeakNext()
   }
 
   function completeFlash() {
@@ -174,29 +204,6 @@ export function PlayRound({
     window.setTimeout(() => setShake(null), 420)
     window.setTimeout(() => setMood('idle'), 700)
   }
-
-  function goNext() {
-    stopSpeech()
-    const nextIndex = index + 1
-    if (nextIndex >= questions.length) {
-      setStatus('done')
-      setMood('cheer')
-      playFanfare(progressRef.current.muted)
-      void speakClip('ui.super_star', progressRef.current.muted)
-      return
-    }
-    setIndex(nextIndex)
-    setWrongPicks([])
-    setStatus('playing')
-    setMood('idle')
-  }
-
-  useEffect(() => {
-    if (status !== 'correct') return
-    const timer = window.setTimeout(goNext, 1150)
-    return () => window.clearTimeout(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status])
 
   if (done || !question) {
     return (
