@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { playBoop, playFanfare, playSparkle, speak, stopSpeech } from '../audio'
-import { displayName, PRAISE, RETRY_PHRASES } from '../data'
+import { playBoop, playFanfare, playSparkle, speakClip, speakSkill, stopSpeech } from '../audio'
+import { displayName, PRAISE } from '../data'
 import type { Question } from '../quiz'
 import {
   recordBestStreak,
@@ -48,12 +48,9 @@ export function PlayRound({
   const question = questions[index]
   const done = status === 'done' || !question
 
-  const speakQuestion = useCallback(
-    (q: Question, muted: boolean) => {
-      speak(q.speak, muted, q.speakRate ?? 0.92)
-    },
-    [],
-  )
+  const speakQuestion = useCallback((q: Question, muted: boolean) => {
+    speakSkill(q.skill, q.target, muted)
+  }, [])
 
   useEffect(() => {
     if (!question || status !== 'playing') return
@@ -93,14 +90,19 @@ export function PlayRound({
     onProgress(withStreak)
     setEarned((count) => count + 1)
     setStreak(nextStreak)
-    const line = nextStreak > 0 && nextStreak % 3 === 0 ? 'Super star!' : pickPhrase(PRAISE)
+    const superStar = nextStreak > 0 && nextStreak % 3 === 0
+    const line = superStar ? 'Super star!' : nextStreak === 1 ? 'You got it!' : pickPhrase(PRAISE)
     setPraise(line)
     setMood(nextStreak >= 3 ? 'cheer' : 'happy')
     setStatus('correct')
-    setBurstId((id) => (nextStreak > 0 && nextStreak % 3 === 0 ? id + 1 : id))
+    setBurstId((id) => (superStar ? id + 1 : id))
     playSparkle(withStreak.muted)
-    if (nextStreak > 0 && nextStreak % 3 === 0) playFanfare(withStreak.muted)
-    speak(line, withStreak.muted, 1)
+    if (superStar) {
+      playFanfare(withStreak.muted)
+      speakClip('ui.super_star', withStreak.muted, 'Super star!')
+    } else if (nextStreak === 1) {
+      speakClip('ui.you_got_it', withStreak.muted, 'You got it!')
+    }
   }
 
   function completeFlash() {
@@ -129,7 +131,7 @@ export function PlayRound({
     setShake(choice)
     setWrongPicks((picks) => [...picks, choice])
     setStreak(0)
-    speak(pickPhrase(RETRY_PHRASES), progressRef.current.muted, 1)
+    speakClip('ui.nice_try', progressRef.current.muted, 'Nice try!')
     window.setTimeout(() => setShake(null), 420)
     window.setTimeout(() => setMood('idle'), 700)
   }
@@ -141,7 +143,7 @@ export function PlayRound({
       setStatus('done')
       setMood('cheer')
       playFanfare(progressRef.current.muted)
-      speak(`Amazing work, ${displayName(progressRef.current.name)}!`, progressRef.current.muted)
+      speakClip('ui.super_star', progressRef.current.muted, 'Super star!')
       return
     }
     setIndex(nextIndex)

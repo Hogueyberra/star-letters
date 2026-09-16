@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { greetGoldie } from '../audio'
 import { displayName, PHRASE_UNITS, UNITS, WORD_UNITS, type UnitKind } from '../data'
 import { focusStatus, masteredInUnit, type Progress } from '../storage'
 import { MuteButton, StarMascot } from './Chrome'
@@ -20,6 +22,12 @@ export function HomeScreen({
   const hello = displayName(progress.name)
   const focus = focusStatus(progress)
   const percent = Math.round((focus.mastered / focus.total) * 100)
+
+  useEffect(() => {
+    const helloOnce = () => greetGoldie(progress.muted)
+    window.addEventListener('pointerdown', helloOnce, { once: true })
+    return () => window.removeEventListener('pointerdown', helloOnce)
+  }, [progress.muted])
 
   return (
     <section className="home">

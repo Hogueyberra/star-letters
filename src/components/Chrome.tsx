@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { displayName } from '../data'
 import {
   listPlayableVoices,
   onVoicesChanged,
-  speak,
-  unlockAudio,
+  playPreview,
   type VoiceOption,
 } from '../audio'
 import type { Progress } from '../storage'
@@ -125,17 +123,20 @@ function VoicePicker({
     return onVoicesChanged(refresh)
   }, [])
 
-  const sample = `Hi ${displayName(progress.name)}! Let's learn the word see.`
-
   return (
     <div className="voice-picker">
       <p className="tips-label">Voice</p>
-      <p className="voice-help">Pick a free browser voice for letters, words, and phrases. Goldie will not see this.</p>
-      {voices.length === 0 ? (
-        <p className="voice-help">No voices yet. Tap Preview once, then open Tips again.</p>
-      ) : (
+      <p className="voice-help">
+        Goldie hears <strong>Jessica</strong> — a warm, friendly voice baked into the app. No internet key needed.
+      </p>
+      <button type="button" className="tiny-btn" onClick={() => playPreview()}>
+        Preview
+      </button>
+      <details className="voice-fallback">
+        <summary>Device voice fallback</summary>
+        <p className="voice-help">Used only if a clip is missing. Goldie still will not see this.</p>
         <label className="voice-label" htmlFor="voice-select">
-          Spoken voice
+          Browser voice
           <select
             id="voice-select"
             className="voice-select"
@@ -155,17 +156,7 @@ function VoicePicker({
             ))}
           </select>
         </label>
-      )}
-      <button
-        type="button"
-        className="tiny-btn"
-        onClick={() => {
-          unlockAudio()
-          speak(sample, progress.muted, 0.95, true)
-        }}
-      >
-        Preview
-      </button>
+      </details>
     </div>
   )
 }

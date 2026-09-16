@@ -1,0 +1,630 @@
+{
+  "letters.A": {
+    "path": "letters/A_name.mp3",
+    "text": "A"
+  },
+  "letters.B": {
+    "path": "letters/B_name.mp3",
+    "text": "B"
+  },
+  "letters.C": {
+    "path": "letters/C_name.mp3",
+    "text": "C"
+  },
+  "letters.D": {
+    "path": "letters/D_name.mp3",
+    "text": "D"
+  },
+  "letters.E": {
+    "path": "letters/E_name.mp3",
+    "text": "E"
+  },
+  "letters.F": {
+    "path": "letters/F_name.mp3",
+    "text": "F"
+  },
+  "letters.G": {
+    "path": "letters/G_name.mp3",
+    "text": "G"
+  },
+  "letters.H": {
+    "path": "letters/H_name.mp3",
+    "text": "H"
+  },
+  "letters.I": {
+    "path": "letters/I_name.mp3",
+    "text": "I"
+  },
+  "letters.J": {
+    "path": "letters/J_name.mp3",
+    "text": "J"
+  },
+  "letters.K": {
+    "path": "letters/K_name.mp3",
+    "text": "K"
+  },
+  "letters.L": {
+    "path": "letters/L_name.mp3",
+    "text": "L"
+  },
+  "letters.M": {
+    "path": "letters/M_name.mp3",
+    "text": "M"
+  },
+  "letters.N": {
+    "path": "letters/N_name.mp3",
+    "text": "N"
+  },
+  "letters.O": {
+    "path": "letters/O_name.mp3",
+    "text": "O"
+  },
+  "letters.P": {
+    "path": "letters/P_name.mp3",
+    "text": "P"
+  },
+  "letters.Q": {
+    "path": "letters/Q_name.mp3",
+    "text": "Q"
+  },
+  "letters.R": {
+    "path": "letters/R_name.mp3",
+    "text": "R"
+  },
+  "letters.S": {
+    "path": "letters/S_name.mp3",
+    "text": "S"
+  },
+  "letters.T": {
+    "path": "letters/T_name.mp3",
+    "text": "T"
+  },
+  "letters.U": {
+    "path": "letters/U_name.mp3",
+    "text": "U"
+  },
+  "letters.V": {
+    "path": "letters/V_name.mp3",
+    "text": "V"
+  },
+  "letters.W": {
+    "path": "letters/W_name.mp3",
+    "text": "W"
+  },
+  "letters.X": {
+    "path": "letters/X_name.mp3",
+    "text": "X"
+  },
+  "letters.Y": {
+    "path": "letters/Y_name.mp3",
+    "text": "Y"
+  },
+  "letters.Z": {
+    "path": "letters/Z_name.mp3",
+    "text": "Z"
+  },
+  "sounds.a": {
+    "path": "sounds/a_sound.mp3",
+    "text": "aaa"
+  },
+  "sounds.b": {
+    "path": "sounds/b_sound.mp3",
+    "text": "buh"
+  },
+  "sounds.c": {
+    "path": "sounds/c_sound.mp3",
+    "text": "kuh"
+  },
+  "sounds.d": {
+    "path": "sounds/d_sound.mp3",
+    "text": "duh"
+  },
+  "sounds.e": {
+    "path": "sounds/e_sound.mp3",
+    "text": "eh"
+  },
+  "sounds.f": {
+    "path": "sounds/f_sound.mp3",
+    "text": "fff"
+  },
+  "sounds.g": {
+    "path": "sounds/g_sound.mp3",
+    "text": "guh"
+  },
+  "sounds.h": {
+    "path": "sounds/h_sound.mp3",
+    "text": "huh"
+  },
+  "sounds.i": {
+    "path": "sounds/i_sound.mp3",
+    "text": "ih"
+  },
+  "sounds.j": {
+    "path": "sounds/j_sound.mp3",
+    "text": "juh"
+  },
+  "sounds.k": {
+    "path": "sounds/k_sound.mp3",
+    "text": "kuh"
+  },
+  "sounds.l": {
+    "path": "sounds/l_sound.mp3",
+    "text": "lll"
+  },
+  "sounds.m": {
+    "path": "sounds/m_sound.mp3",
+    "text": "mmm"
+  },
+  "sounds.n": {
+    "path": "sounds/n_sound.mp3",
+    "text": "nnn"
+  },
+  "sounds.o": {
+    "path": "sounds/o_sound.mp3",
+    "text": "ah"
+  },
+  "sounds.p": {
+    "path": "sounds/p_sound.mp3",
+    "text": "puh"
+  },
+  "sounds.q": {
+    "path": "sounds/q_sound.mp3",
+    "text": "kwuh"
+  },
+  "sounds.r": {
+    "path": "sounds/r_sound.mp3",
+    "text": "rrr"
+  },
+  "sounds.s": {
+    "path": "sounds/s_sound.mp3",
+    "text": "sss"
+  },
+  "sounds.t": {
+    "path": "sounds/t_sound.mp3",
+    "text": "tuh"
+  },
+  "sounds.u": {
+    "path": "sounds/u_sound.mp3",
+    "text": "uh"
+  },
+  "sounds.v": {
+    "path": "sounds/v_sound.mp3",
+    "text": "vvv"
+  },
+  "sounds.w": {
+    "path": "sounds/w_sound.mp3",
+    "text": "wuh"
+  },
+  "sounds.x": {
+    "path": "sounds/x_sound.mp3",
+    "text": "ks"
+  },
+  "sounds.y": {
+    "path": "sounds/y_sound.mp3",
+    "text": "yuh"
+  },
+  "sounds.z": {
+    "path": "sounds/z_sound.mp3",
+    "text": "zzz"
+  },
+  "words.I": {
+    "path": "words/i.mp3",
+    "text": "I"
+  },
+  "words.a": {
+    "path": "words/a.mp3",
+    "text": "a"
+  },
+  "words.go": {
+    "path": "words/go.mp3",
+    "text": "go"
+  },
+  "words.see": {
+    "path": "words/see.mp3",
+    "text": "see"
+  },
+  "words.the": {
+    "path": "words/the.mp3",
+    "text": "the"
+  },
+  "words.to": {
+    "path": "words/to.mp3",
+    "text": "to"
+  },
+  "words.is": {
+    "path": "words/is.mp3",
+    "text": "is"
+  },
+  "words.and": {
+    "path": "words/and.mp3",
+    "text": "and"
+  },
+  "words.in": {
+    "path": "words/in.mp3",
+    "text": "in"
+  },
+  "words.can": {
+    "path": "words/can.mp3",
+    "text": "can"
+  },
+  "words.you": {
+    "path": "words/you.mp3",
+    "text": "you"
+  },
+  "words.he": {
+    "path": "words/he.mp3",
+    "text": "he"
+  },
+  "words.like": {
+    "path": "words/like.mp3",
+    "text": "like"
+  },
+  "words.we": {
+    "path": "words/we.mp3",
+    "text": "we"
+  },
+  "words.it": {
+    "path": "words/it.mp3",
+    "text": "it"
+  },
+  "words.up": {
+    "path": "words/up.mp3",
+    "text": "up"
+  },
+  "words.no": {
+    "path": "words/no.mp3",
+    "text": "no"
+  },
+  "words.at": {
+    "path": "words/at.mp3",
+    "text": "at"
+  },
+  "words.my": {
+    "path": "words/my.mp3",
+    "text": "my"
+  },
+  "words.an": {
+    "path": "words/an.mp3",
+    "text": "an"
+  },
+  "words.me": {
+    "path": "words/me.mp3",
+    "text": "me"
+  },
+  "words.do": {
+    "path": "words/do.mp3",
+    "text": "do"
+  },
+  "words.on": {
+    "path": "words/on.mp3",
+    "text": "on"
+  },
+  "words.am": {
+    "path": "words/am.mp3",
+    "text": "am"
+  },
+  "words.so": {
+    "path": "words/so.mp3",
+    "text": "so"
+  },
+  "words.come": {
+    "path": "words/come.mp3",
+    "text": "come"
+  },
+  "words.was": {
+    "path": "words/was.mp3",
+    "text": "was"
+  },
+  "words.are": {
+    "path": "words/are.mp3",
+    "text": "are"
+  },
+  "words.as": {
+    "path": "words/as.mp3",
+    "text": "as"
+  },
+  "words.his": {
+    "path": "words/his.mp3",
+    "text": "his"
+  },
+  "words.they": {
+    "path": "words/they.mp3",
+    "text": "they"
+  },
+  "words.be": {
+    "path": "words/be.mp3",
+    "text": "be"
+  },
+  "words.have": {
+    "path": "words/have.mp3",
+    "text": "have"
+  },
+  "words.from": {
+    "path": "words/from.mp3",
+    "text": "from"
+  },
+  "words.or": {
+    "path": "words/or.mp3",
+    "text": "or"
+  },
+  "words.one": {
+    "path": "words/one.mp3",
+    "text": "one"
+  },
+  "words.by": {
+    "path": "words/by.mp3",
+    "text": "by"
+  },
+  "words.she": {
+    "path": "words/she.mp3",
+    "text": "she"
+  },
+  "words.has": {
+    "path": "words/has.mp3",
+    "text": "has"
+  },
+  "words.for": {
+    "path": "words/for.mp3",
+    "text": "for"
+  },
+  "words.of": {
+    "path": "words/of.mp3",
+    "text": "of"
+  },
+  "words.what": {
+    "path": "words/what.mp3",
+    "text": "what"
+  },
+  "words.your": {
+    "path": "words/your.mp3",
+    "text": "your"
+  },
+  "words.said": {
+    "path": "words/said.mp3",
+    "text": "said"
+  },
+  "words.how": {
+    "path": "words/how.mp3",
+    "text": "how"
+  },
+  "words.out": {
+    "path": "words/out.mp3",
+    "text": "out"
+  },
+  "words.her": {
+    "path": "words/her.mp3",
+    "text": "her"
+  },
+  "words.into": {
+    "path": "words/into.mp3",
+    "text": "into"
+  },
+  "words.look": {
+    "path": "words/look.mp3",
+    "text": "look"
+  },
+  "words.two": {
+    "path": "words/two.mp3",
+    "text": "two"
+  },
+  "phrases.i_go": {
+    "path": "phrases/i_go.mp3",
+    "text": "I go"
+  },
+  "phrases.a_can": {
+    "path": "phrases/a_can.mp3",
+    "text": "a can"
+  },
+  "phrases.go_in": {
+    "path": "phrases/go_in.mp3",
+    "text": "go in"
+  },
+  "phrases.i_see": {
+    "path": "phrases/i_see.mp3",
+    "text": "I see"
+  },
+  "phrases.i_see_the": {
+    "path": "phrases/i_see_the.mp3",
+    "text": "I see the"
+  },
+  "phrases.go_to": {
+    "path": "phrases/go_to.mp3",
+    "text": "go to"
+  },
+  "phrases.is_the": {
+    "path": "phrases/is_the.mp3",
+    "text": "is the"
+  },
+  "phrases.and_see": {
+    "path": "phrases/and_see.mp3",
+    "text": "and see"
+  },
+  "phrases.in_the": {
+    "path": "phrases/in_the.mp3",
+    "text": "in the"
+  },
+  "phrases.can_see": {
+    "path": "phrases/can_see.mp3",
+    "text": "can see"
+  },
+  "phrases.you_can": {
+    "path": "phrases/you_can.mp3",
+    "text": "you can"
+  },
+  "phrases.he_is": {
+    "path": "phrases/he_is.mp3",
+    "text": "he is"
+  },
+  "phrases.i_like": {
+    "path": "phrases/i_like.mp3",
+    "text": "I like"
+  },
+  "phrases.we_can": {
+    "path": "phrases/we_can.mp3",
+    "text": "we can"
+  },
+  "phrases.it_is": {
+    "path": "phrases/it_is.mp3",
+    "text": "it is"
+  },
+  "phrases.up_to": {
+    "path": "phrases/up_to.mp3",
+    "text": "up to"
+  },
+  "phrases.no_go": {
+    "path": "phrases/no_go.mp3",
+    "text": "no go"
+  },
+  "phrases.at_the": {
+    "path": "phrases/at_the.mp3",
+    "text": "at the"
+  },
+  "phrases.can_my": {
+    "path": "phrases/can_my.mp3",
+    "text": "can my"
+  },
+  "phrases.see_an": {
+    "path": "phrases/see_an.mp3",
+    "text": "see an"
+  },
+  "phrases.like_me": {
+    "path": "phrases/like_me.mp3",
+    "text": "like me"
+  },
+  "phrases.can_do_it": {
+    "path": "phrases/can_do_it.mp3",
+    "text": "can do it"
+  },
+  "phrases.is_on": {
+    "path": "phrases/is_on.mp3",
+    "text": "is on"
+  },
+  "phrases.i_am": {
+    "path": "phrases/i_am.mp3",
+    "text": "I am"
+  },
+  "phrases.so_you_can": {
+    "path": "phrases/so_you_can.mp3",
+    "text": "so you can"
+  },
+  "phrases.come_to": {
+    "path": "phrases/come_to.mp3",
+    "text": "come to"
+  },
+  "phrases.it_was": {
+    "path": "phrases/it_was.mp3",
+    "text": "it was"
+  },
+  "phrases.you_are": {
+    "path": "phrases/you_are.mp3",
+    "text": "you are"
+  },
+  "phrases.as_i_go": {
+    "path": "phrases/as_i_go.mp3",
+    "text": "as I go"
+  },
+  "phrases.i_see_his": {
+    "path": "phrases/i_see_his.mp3",
+    "text": "I see his"
+  },
+  "phrases.they_like_to": {
+    "path": "phrases/they_like_to.mp3",
+    "text": "they like to"
+  },
+  "phrases.it_can_be": {
+    "path": "phrases/it_can_be.mp3",
+    "text": "it can be"
+  },
+  "phrases.i_have": {
+    "path": "phrases/i_have.mp3",
+    "text": "I have"
+  },
+  "phrases.from_the": {
+    "path": "phrases/from_the.mp3",
+    "text": "from the"
+  },
+  "phrases.you_or": {
+    "path": "phrases/you_or.mp3",
+    "text": "you or"
+  },
+  "phrases.the_one": {
+    "path": "phrases/the_one.mp3",
+    "text": "the one"
+  },
+  "phrases.by_his": {
+    "path": "phrases/by_his.mp3",
+    "text": "by his"
+  },
+  "phrases.she_has": {
+    "path": "phrases/she_has.mp3",
+    "text": "she has"
+  },
+  "phrases.i_can_go": {
+    "path": "phrases/i_can_go.mp3",
+    "text": "I can go"
+  },
+  "phrases.for_his": {
+    "path": "phrases/for_his.mp3",
+    "text": "for his"
+  },
+  "phrases.out_of_the": {
+    "path": "phrases/out_of_the.mp3",
+    "text": "out of the"
+  },
+  "phrases.what_is_it": {
+    "path": "phrases/what_is_it.mp3",
+    "text": "What is it"
+  },
+  "phrases.i_see_your": {
+    "path": "phrases/i_see_your.mp3",
+    "text": "I see your"
+  },
+  "phrases.he_said_no": {
+    "path": "phrases/he_said_no.mp3",
+    "text": "he said no"
+  },
+  "phrases.how_do_i": {
+    "path": "phrases/how_do_i.mp3",
+    "text": "how do I"
+  },
+  "phrases.he_is_out": {
+    "path": "phrases/he_is_out.mp3",
+    "text": "he is out"
+  },
+  "phrases.it_was_her": {
+    "path": "phrases/it_was_her.mp3",
+    "text": "it was her"
+  },
+  "phrases.into_the_can": {
+    "path": "phrases/into_the_can.mp3",
+    "text": "into the can"
+  },
+  "phrases.look_for_the": {
+    "path": "phrases/look_for_the.mp3",
+    "text": "look for the"
+  },
+  "phrases.he_is_two": {
+    "path": "phrases/he_is_two.mp3",
+    "text": "he is two"
+  },
+  "ui.hi_goldie": {
+    "path": "ui/hi_goldie.mp3",
+    "text": "Hi Goldie!"
+  },
+  "ui.you_got_it": {
+    "path": "ui/you_got_it.mp3",
+    "text": "You got it!"
+  },
+  "ui.nice_try": {
+    "path": "ui/nice_try.mp3",
+    "text": "Nice try!"
+  },
+  "ui.super_star": {
+    "path": "ui/super_star.mp3",
+    "text": "Super star!"
+  },
+  "ui.lets_learn": {
+    "path": "ui/lets_learn.mp3",
+    "text": "Let's learn!"
+  }
+}

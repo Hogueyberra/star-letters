@@ -786,6 +786,16 @@ h1 {
   color: var(--ink);
 }
 
+.voice-fallback {
+  margin-top: 10px;
+}
+
+.voice-fallback summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
 .voice-select {
   width: 100%;
   min-height: 48px;

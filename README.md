@@ -67,7 +67,7 @@ A unit unlocks when she masters about **80%** of it (8 of 10 items, after 3 corr
 - Keep sessions short — 5 to 10 minutes.
 - Sit with her the first few times so she hears the speech.
 - Progress (stars, mastered letters/words/phrases, unlocked units, mute, name) is saved in this browser with `localStorage`.
-- Open **Tips** on the home screen to pick a free browser voice, preview it, unlock the next unit, or reset progress.
+- Goldie hears **Jessica**, a warm voice saved as MP3s in the app (no API key). Open **Tips** to preview it. A device-voice fallback is there only if a clip is missing.
 
 Audio uses the browser’s **Web Speech API** (`speechSynthesis`). Chrome, Edge, and Safari work well. The first tap on the page wakes up sound.
 
