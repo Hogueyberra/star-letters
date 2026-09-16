@@ -134,7 +134,7 @@ function VoicePicker({
       </button>
       <details className="voice-fallback">
         <summary>Device voice fallback</summary>
-        <p className="voice-help">Used only if a clip is missing. Goldie still will not see this.</p>
+        <p className="voice-help">Lessons use Jessica MP3s only. This list is unused on the phone.</p>
         <label className="voice-label" htmlFor="voice-select">
           Browser voice
           <select

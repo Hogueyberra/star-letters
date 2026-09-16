@@ -51,6 +51,7 @@ export function PlayRound({
   const [earned, setEarned] = useState(0)
   const [shake, setShake] = useState<string | null>(null)
   const [mood, setMood] = useState<'idle' | 'happy' | 'oops' | 'cheer'>('idle')
+  const [tapToHear, setTapToHear] = useState(false)
   const progressRef = useRef(progress)
   progressRef.current = progress
 
@@ -58,21 +59,33 @@ export function PlayRound({
   const done = status === 'done' || !question
 
   const speakQuestion = useCallback((q: Question, muted: boolean) => {
-    speakSkill(q.skill, q.target, muted)
+    // Letter/sound/word/phrase MP3 only — never q.speak (that string was TTS).
+    return speakSkill(q.skill, q.target, muted)
   }, [])
 
-  const hearQuestion = useCallback((q: Question, muted: boolean) => {
-    // Play in this tap so iOS allows Jessica even if autoplay is still locked.
-    speakQuestion(q, muted)
-  }, [speakQuestion])
+  const hearQuestion = useCallback(
+    (q: Question, muted: boolean) => {
+      void unlockAudio()
+      setTapToHear(false)
+      void speakQuestion(q, muted)
+    },
+    [speakQuestion],
+  )
 
   useEffect(() => {
     if (!question || status !== 'playing') return
+    setTapToHear(false)
     let cancelled = false
     const timer = window.setTimeout(() => {
       void whenAudioUnlocked().then((ok) => {
-        if (cancelled || !ok || progressRef.current.muted) return
-        speakQuestion(question, progressRef.current.muted)
+        if (cancelled || progressRef.current.muted) return
+        if (!ok) {
+          setTapToHear(true)
+          return
+        }
+        void speakQuestion(question, progressRef.current.muted).then((played) => {
+          if (!cancelled && !played) setTapToHear(true)
+        })
       })
     }, 280)
     return () => {
@@ -123,9 +136,9 @@ export function PlayRound({
     playSparkle(withStreak.muted)
     if (superStar) {
       playFanfare(withStreak.muted)
-      speakClip('ui.super_star', withStreak.muted, 'Super star!')
+      void speakClip('ui.super_star', withStreak.muted)
     } else if (nextStreak === 1) {
-      speakClip('ui.you_got_it', withStreak.muted, 'You got it!')
+      void speakClip('ui.you_got_it', withStreak.muted)
     }
   }
 
@@ -156,7 +169,7 @@ export function PlayRound({
     setShake(choice)
     setWrongPicks((picks) => [...picks, choice])
     setStreak(0)
-    speakClip('ui.nice_try', progressRef.current.muted, 'Nice try!')
+    void speakClip('ui.nice_try', progressRef.current.muted)
     window.setTimeout(() => setShake(null), 420)
     window.setTimeout(() => setMood('idle'), 700)
   }
@@ -168,7 +181,7 @@ export function PlayRound({
       setStatus('done')
       setMood('cheer')
       playFanfare(progressRef.current.muted)
-      speakClip('ui.super_star', progressRef.current.muted, 'Super star!')
+      void speakClip('ui.super_star', progressRef.current.muted)
       return
     }
     setIndex(nextIndex)
@@ -281,6 +294,7 @@ export function PlayRound({
         >
           Hear again
         </button>
+        {tapToHear && <p className="hear-hint">Tap Hear again if it’s quiet</p>}
       </div>
 
       {question.style === 'flash' ? (

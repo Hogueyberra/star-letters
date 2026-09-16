@@ -3,7 +3,6 @@ import manifest from './audio-manifest.json'
 type ManifestEntry = { path: string; text: string }
 const CLIPS = manifest as Record<string, ManifestEntry>
 
-let voicesReady = false
 let audioCtx: AudioContext | null = null
 let chosenVoiceURI = ''
 let chosenVoiceName = ''
@@ -111,53 +110,19 @@ const UI_BY_TEXT: Record<string, string> = {
   'nice try': 'ui.nice_try',
 }
 
-function speakTts(text: string) {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window) || !text.trim()) return
-  window.speechSynthesis.cancel()
-  const utterance = new SpeechSynthesisUtterance(text)
-  utterance.rate = 0.92
-  utterance.pitch = 1.12
-  const voice = resolveVoice()
-  if (voice) {
-    utterance.voice = voice
-    utterance.lang = voice.lang || 'en-US'
-  } else {
-    utterance.lang = 'en-US'
-  }
-  if (!voicesReady) {
-    window.speechSynthesis.addEventListener(
-      'voiceschanged',
-      () => {
-        const late = resolveVoice()
-        if (late) {
-          utterance.voice = late
-          utterance.lang = late.lang || 'en-US'
-        }
-      },
-      { once: true },
-    )
-  }
-  window.speechSynthesis.speak(utterance)
-}
-
-// One-sample silent WAV. Playing this inside a tap unlocks HTMLAudio on iOS Safari
-// so later in-session auto-plays of Jessica clips are allowed.
+// One-sample silent WAV. Playing this inside a tap unlocks later HTMLAudio autoplay on iOS.
 const SILENT_WAV =
   'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA'
 
-let sharedAudio: HTMLAudioElement | null = null
 let htmlAudioUnlocked = false
 let unlockWork: Promise<boolean> | null = null
 
-function getSharedAudio() {
-  if (typeof window === 'undefined') return null
-  if (!sharedAudio) {
-    sharedAudio = new Audio()
-    sharedAudio.setAttribute('playsinline', 'true')
-    sharedAudio.setAttribute('webkit-playsinline', 'true')
-    sharedAudio.preload = 'auto'
-  }
-  return sharedAudio
+function makeAudio() {
+  const audio = new Audio()
+  audio.setAttribute('playsinline', 'true')
+  audio.setAttribute('webkit-playsinline', 'true')
+  audio.preload = 'auto'
+  return audio
 }
 
 function isAutoplayBlocked(error: unknown) {
@@ -169,15 +134,17 @@ function isAutoplayBlocked(error: unknown) {
 
 function stopClip() {
   if (!currentClip) return
-  currentClip.onended = null
-  currentClip.onerror = null
-  currentClip.pause()
-  try {
-    currentClip.currentTime = 0
-  } catch {
-    // iOS can throw if currentTime is set before metadata.
-  }
+  const audio = currentClip
   currentClip = null
+  audio.onended = null
+  audio.onerror = null
+  audio.pause()
+  audio.removeAttribute('src')
+  try {
+    audio.load()
+  } catch {
+    // Resetting a torn-down element can throw on iOS.
+  }
 }
 
 export function stopSpeech() {
@@ -196,45 +163,38 @@ export function whenAudioUnlocked() {
   return unlockWork ?? Promise.resolve(false)
 }
 
-function playUrl(url: string): Promise<void> {
-  stopSpeech()
-  const audio = getSharedAudio()
-  if (!audio) return Promise.resolve()
+function playUrl(url: string): Promise<boolean> {
+  stopClip()
+  if (typeof window === 'undefined') return Promise.resolve(false)
+  const audio = makeAudio()
   currentClip = audio
-  return new Promise((resolve) => {
-    const finish = () => {
-      if (currentClip === audio) currentClip = null
-      resolve()
-    }
-    audio.onended = finish
-    audio.onerror = finish
-    audio.volume = 1
-    audio.src = url
-    try {
-      audio.load()
-    } catch {
-      // load() is best-effort; play() still runs.
-    }
-    void audio
-      .play()
-      .then(() => {
-        htmlAudioUnlocked = true
-      })
-      .catch((error: unknown) => {
-        if (isAutoplayBlocked(error)) htmlAudioUnlocked = false
-        finish()
-      })
-  })
+  audio.src = url
+  return audio
+    .play()
+    .then(() => {
+      htmlAudioUnlocked = true
+      audio.onended = () => {
+        if (currentClip === audio) currentClip = null
+      }
+      audio.onerror = () => {
+        if (currentClip === audio) currentClip = null
+      }
+      return true
+    })
+    .catch((error: unknown) => {
+      if (isAutoplayBlocked(error)) htmlAudioUnlocked = false
+      if (currentClip === audio) {
+        stopClip()
+      }
+      return false
+    })
 }
 
-export function speakClip(key: string, muted: boolean, fallbackText = '', ignoreMute = false) {
-  if (!ignoreMute && muted) return
+export function speakClip(key: string, muted: boolean, ignoreMute = false): Promise<boolean> {
+  if (!ignoreMute && muted) return Promise.resolve(false)
   const entry = CLIPS[key]
-  if (!entry) {
-    if (fallbackText) speakTts(fallbackText)
-    return
-  }
-  void playUrl(clipUrl(entry.path))
+  if (!entry) return Promise.resolve(false)
+  return playUrl(clipUrl(entry.path))
 }
 
 export function speakSkill(
@@ -242,49 +202,28 @@ export function speakSkill(
   target: string,
   muted: boolean,
   ignoreMute = false,
-) {
-  const key = clipKeyFor(skill, target)
-  if (!CLIPS[key]) {
-    if ((!ignoreMute && muted) || !target.trim()) return
-    speakTts(target)
-    return
-  }
-  speakClip(key, muted, '', ignoreMute)
+): Promise<boolean> {
+  return speakClip(clipKeyFor(skill, target), muted, ignoreMute)
 }
 
-export function speak(text: string, muted: boolean, _rate = 0.92, ignoreMute = false) {
-  if ((!ignoreMute && muted) || !text.trim()) return
+export function speak(text: string, muted: boolean, _rate = 0.92, ignoreMute = false): Promise<boolean> {
+  if ((!ignoreMute && muted) || !text.trim()) return Promise.resolve(false)
   const trimmed = text.trim()
   const uiKey = UI_BY_TEXT[trimmed.toLowerCase()]
-  if (uiKey) {
-    speakClip(uiKey, muted, trimmed, ignoreMute)
-    return
-  }
-  if (trimmed === 'I' && CLIPS['words.I']) {
-    speakClip('words.I', muted, 'I', ignoreMute)
-    return
-  }
-  if (trimmed === 'a' && CLIPS['words.a']) {
-    speakClip('words.a', muted, 'a', ignoreMute)
-    return
-  }
+  if (uiKey) return speakClip(uiKey, muted, ignoreMute)
+  if (trimmed === 'I') return speakClip('words.I', muted, ignoreMute)
+  if (trimmed === 'a') return speakClip('words.a', muted, ignoreMute)
   const wordKey = `words.${trimmed.toLowerCase()}`
-  if (CLIPS[wordKey]) {
-    speakClip(wordKey, muted, trimmed, ignoreMute)
-    return
-  }
+  if (CLIPS[wordKey]) return speakClip(wordKey, muted, ignoreMute)
   const phraseKey = `phrases.${slugPhrase(trimmed)}`
-  if (CLIPS[phraseKey]) {
-    speakClip(phraseKey, muted, trimmed, ignoreMute)
-    return
-  }
-  speakTts(trimmed)
+  if (CLIPS[phraseKey]) return speakClip(phraseKey, muted, ignoreMute)
+  return Promise.resolve(false)
 }
 
 export function playPreview() {
   resumeAudioContext()
   const keys = ['ui.hi_goldie', 'ui.lets_learn', 'words.see']
-  let chain = Promise.resolve()
+  let chain = Promise.resolve<boolean | void>(undefined)
   for (const key of keys) {
     const entry = CLIPS[key]
     if (!entry) continue
@@ -296,18 +235,13 @@ export function playPreview() {
 export function greetGoldie(muted: boolean) {
   if (greeted || muted) return
   greeted = true
-  speakClip('ui.hi_goldie', muted)
+  void speakClip('ui.hi_goldie', muted)
 }
 
 export function initAudio() {
   if (typeof window === 'undefined') return
-  getSharedAudio()
   if ('speechSynthesis' in window) {
     getVoices()
-    window.speechSynthesis.addEventListener('voiceschanged', () => {
-      voicesReady = true
-    })
-    voicesReady = getVoices().length > 0
   }
 }
 
@@ -339,48 +273,31 @@ export function unlockAudio() {
   if (typeof window === 'undefined') return Promise.resolve(false)
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel()
-    const warm = new SpeechSynthesisUtterance(' ')
-    warm.volume = 0
-    window.speechSynthesis.speak(warm)
-    window.speechSynthesis.cancel()
   }
   resumeAudioContext()
-  if (htmlAudioUnlocked && sharedAudio) return Promise.resolve(true)
+  if (htmlAudioUnlocked) return Promise.resolve(true)
   if (unlockWork) return unlockWork
 
-  const audio = getSharedAudio()
-  if (!audio) return Promise.resolve(false)
-
-  unlockWork = (async () => {
-    const previous = currentClip
-    try {
-      audio.onended = null
-      audio.onerror = null
-      audio.volume = 0.01
-      audio.src = SILENT_WAV
+  const audio = makeAudio()
+  audio.volume = 0.01
+  audio.src = SILENT_WAV
+  unlockWork = audio
+    .play()
+    .then(() => {
+      htmlAudioUnlocked = true
+      audio.pause()
+      audio.removeAttribute('src')
       try {
         audio.load()
       } catch {
         // ignore
       }
-      await audio.play()
-      audio.pause()
-      try {
-        audio.currentTime = 0
-      } catch {
-        // ignore
-      }
-      htmlAudioUnlocked = true
       return true
-    } catch {
-      if (audio.src.startsWith('data:')) htmlAudioUnlocked = false
-      return htmlAudioUnlocked
-    } finally {
-      audio.volume = 1
-      if (currentClip === previous) currentClip = null
+    })
+    .catch(() => false)
+    .finally(() => {
       unlockWork = null
-    }
-  })()
+    })
 
   return unlockWork
 }

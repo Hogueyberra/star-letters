@@ -575,6 +575,13 @@ h1 {
   box-shadow: 0 4px 0 #c9def7;
 }
 
+.hear-hint {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 650;
+  color: #5b4a78;
+}
+
 .choices {
   display: grid;
   grid-template-columns: 1fr 1fr;
