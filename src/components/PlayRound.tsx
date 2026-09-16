@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { playBoop, playFanfare, playSparkle, speakClip, speakSkill, stopSpeech } from '../audio'
+import {
+  playBoop,
+  playFanfare,
+  playSparkle,
+  speakClip,
+  speakSkill,
+  stopSpeech,
+  unlockAudio,
+  whenAudioUnlocked,
+} from '../audio'
 import { displayName, PRAISE } from '../data'
 import type { Question } from '../quiz'
 import {
@@ -52,10 +61,24 @@ export function PlayRound({
     speakSkill(q.skill, q.target, muted)
   }, [])
 
+  const hearQuestion = useCallback((q: Question, muted: boolean) => {
+    // Play in this tap so iOS allows Jessica even if autoplay is still locked.
+    speakQuestion(q, muted)
+  }, [speakQuestion])
+
   useEffect(() => {
     if (!question || status !== 'playing') return
-    const timer = window.setTimeout(() => speakQuestion(question, progressRef.current.muted), 280)
-    return () => window.clearTimeout(timer)
+    let cancelled = false
+    const timer = window.setTimeout(() => {
+      void whenAudioUnlocked().then((ok) => {
+        if (cancelled || !ok || progressRef.current.muted) return
+        speakQuestion(question, progressRef.current.muted)
+      })
+    }, 280)
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
   }, [question, status, speakQuestion])
 
   useEffect(() => {
@@ -71,7 +94,7 @@ export function PlayRound({
         if (question.style === 'flash') {
           completeFlash()
         } else {
-          speakQuestion(question, progressRef.current.muted)
+          hearQuestion(question, progressRef.current.muted)
         }
         return
       }
@@ -86,6 +109,7 @@ export function PlayRound({
   }, [question, status, onHome, speakQuestion, wrongPicks, streak])
 
   function award(nextProgress: Progress, nextStreak: number) {
+    void unlockAudio()
     const withStreak = recordBestStreak(nextProgress, nextStreak)
     onProgress(withStreak)
     setEarned((count) => count + 1)
@@ -113,6 +137,7 @@ export function PlayRound({
 
   function pickChoice(choice: string) {
     if (!question || status !== 'playing') return
+    void unlockAudio()
     if (wrongPicks.includes(choice)) return
     const correct = choice === question.answer
     if (correct) {
@@ -234,7 +259,7 @@ export function PlayRound({
           <button
             type="button"
             className="hear-giant"
-            onClick={() => speakQuestion(question, progress.muted)}
+            onClick={() => hearQuestion(question, progress.muted)}
             aria-label="Hear the question again"
           >
             🔊
@@ -243,7 +268,7 @@ export function PlayRound({
           <button
             type="button"
             className={`big-display ${question.displayKind}`}
-            onClick={() => speakQuestion(question, progress.muted)}
+            onClick={() => hearQuestion(question, progress.muted)}
             aria-label={`Shown: ${question.display}. Hear it again.`}
           >
             {question.display}
@@ -252,7 +277,7 @@ export function PlayRound({
         <button
           type="button"
           className="hear-again"
-          onClick={() => speakQuestion(question, progress.muted)}
+          onClick={() => hearQuestion(question, progress.muted)}
         >
           Hear again
         </button>

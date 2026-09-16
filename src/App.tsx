@@ -36,9 +36,15 @@ export default function App() {
 
   useEffect(() => {
     initAudio()
-    const unlock = () => unlockAudio()
-    window.addEventListener('pointerdown', unlock, { once: true })
-    return () => window.removeEventListener('pointerdown', unlock)
+    const unlock = () => {
+      void unlockAudio()
+    }
+    window.addEventListener('pointerdown', unlock)
+    window.addEventListener('touchstart', unlock)
+    return () => {
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('touchstart', unlock)
+    }
   }, [])
 
   useEffect(() => {
@@ -74,12 +80,13 @@ export default function App() {
           onMute={toggleMute}
           onOpenTips={() => setTipsOpen(true)}
           onPlay={(mode) => {
-            unlockAudio()
-            if (mode === 'letters') setScreen({ name: 'letters' })
-            else if (mode === 'sounds') setScreen({ name: 'sounds' })
-            else if (mode === 'words') setScreen({ name: 'unit-pick', kind: 'words' })
-            else if (mode === 'phrases') setScreen({ name: 'unit-pick', kind: 'phrases' })
-            else setScreen({ name: 'mix' })
+            void unlockAudio().then(() => {
+              if (mode === 'letters') setScreen({ name: 'letters' })
+              else if (mode === 'sounds') setScreen({ name: 'sounds' })
+              else if (mode === 'words') setScreen({ name: 'unit-pick', kind: 'words' })
+              else if (mode === 'phrases') setScreen({ name: 'unit-pick', kind: 'phrases' })
+              else setScreen({ name: 'mix' })
+            })
           }}
         />
       )}
@@ -92,7 +99,9 @@ export default function App() {
           onProgress={setProgress}
           onMute={toggleMute}
           onHome={goHome}
-          onAgain={() => setPlayNonce((n) => n + 1)}
+          onAgain={() => {
+            void unlockAudio().then(() => setPlayNonce((n) => n + 1))
+          }}
         />
       )}
       {screen.name === 'sounds' && (
@@ -104,7 +113,9 @@ export default function App() {
           onProgress={setProgress}
           onMute={toggleMute}
           onHome={goHome}
-          onAgain={() => setPlayNonce((n) => n + 1)}
+          onAgain={() => {
+            void unlockAudio().then(() => setPlayNonce((n) => n + 1))
+          }}
         />
       )}
       {screen.name === 'unit-pick' && (
@@ -113,7 +124,9 @@ export default function App() {
           progress={progress}
           onBack={goHome}
           onMute={toggleMute}
-          onChoose={(unitId) => setScreen({ name: 'unit-play', unitId, kind: screen.kind })}
+          onChoose={(unitId) => {
+            void unlockAudio().then(() => setScreen({ name: 'unit-play', unitId, kind: screen.kind }))
+          }}
         />
       )}
       {screen.name === 'unit-play' && (
@@ -128,7 +141,9 @@ export default function App() {
             stopSpeech()
             setScreen({ name: 'unit-pick', kind: screen.kind })
           }}
-          onAgain={() => setPlayNonce((n) => n + 1)}
+          onAgain={() => {
+            void unlockAudio().then(() => setPlayNonce((n) => n + 1))
+          }}
         />
       )}
       {screen.name === 'mix' && (
@@ -140,7 +155,9 @@ export default function App() {
           onProgress={setProgress}
           onMute={toggleMute}
           onHome={goHome}
-          onAgain={() => setPlayNonce((n) => n + 1)}
+          onAgain={() => {
+            void unlockAudio().then(() => setPlayNonce((n) => n + 1))
+          }}
         />
       )}
       <TipsDrawer
