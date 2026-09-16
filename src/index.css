@@ -757,7 +757,45 @@ h1 {
 
 .tips-label {
   font-weight: 700;
-  margin-bottom: 8px;
+  margin: 16px 0 8px;
+}
+
+.voice-picker {
+  background: #fff;
+  border-radius: 18px;
+  padding: 12px 14px 14px;
+  box-shadow: 0 4px 0 rgba(80, 50, 120, 0.08);
+}
+
+.voice-picker .tips-label {
+  margin-top: 0;
+}
+
+.voice-help,
+.voice-label {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.voice-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--ink);
+}
+
+.voice-select {
+  width: 100%;
+  min-height: 48px;
+  border: 3px solid #f3c6ff;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  padding: 8px 10px;
 }
 
 .tips-actions {

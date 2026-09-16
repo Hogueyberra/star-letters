@@ -10,6 +10,8 @@ export type Progress = {
   unlockedUnits: string[]
   muted: boolean
   bestStreak: number
+  voiceURI: string
+  voiceName: string
 }
 
 const KEY = 'star-letters-goldie-fvsd-v1'
@@ -26,6 +28,8 @@ export function defaultProgress(): Progress {
     unlockedUnits: [FIRST_UNIT],
     muted: false,
     bestStreak: 0,
+    voiceURI: '',
+    voiceName: '',
   }
 }
 
@@ -178,8 +182,14 @@ export function unlockAllUnits(progress: Progress): Progress {
   return { ...progress, unlockedUnits: UNITS.map((unit) => unit.id) }
 }
 
-export function resetProgress(name: string, muted: boolean): Progress {
-  return { ...defaultProgress(), name: name.trim() ? name : DEFAULT_NAME, muted }
+export function resetProgress(progress: Progress): Progress {
+  return {
+    ...defaultProgress(),
+    name: progress.name.trim() ? progress.name : DEFAULT_NAME,
+    muted: progress.muted,
+    voiceURI: progress.voiceURI,
+    voiceName: progress.voiceName,
+  }
 }
 
 export function canUnlockMore(progress: Progress) {

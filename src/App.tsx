@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { initAudio, stopSpeech, unlockAudio } from './audio'
+import { initAudio, setVoiceChoice, stopSpeech, unlockAudio } from './audio'
 import { unitById, type UnitKind } from './data'
 import {
   buildLetterNameQuestions,
@@ -44,6 +44,10 @@ export default function App() {
   useEffect(() => {
     saveProgress(progress)
   }, [progress])
+
+  useEffect(() => {
+    setVoiceChoice(progress.voiceURI, progress.voiceName)
+  }, [progress.voiceURI, progress.voiceName])
 
   function goHome() {
     stopSpeech()
@@ -141,11 +145,16 @@ export default function App() {
       )}
       <TipsDrawer
         open={tipsOpen}
+        progress={progress}
         onClose={() => setTipsOpen(false)}
         canUnlock={canUnlockMore(progress)}
         onUnlockNext={() => setProgress((prev) => unlockNextUnit(prev))}
         onUnlockAll={() => setProgress((prev) => unlockAllUnits(prev))}
-        onReset={() => setProgress((prev) => resetProgress(prev.name, prev.muted))}
+        onReset={() => setProgress((prev) => resetProgress(prev))}
+        onVoice={(voiceURI, voiceName) => {
+          setVoiceChoice(voiceURI, voiceName)
+          setProgress((prev) => ({ ...prev, voiceURI, voiceName }))
+        }}
       />
     </div>
   )

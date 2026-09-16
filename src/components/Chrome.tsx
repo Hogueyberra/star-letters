@@ -1,4 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
+import { displayName } from '../data'
+import {
+  listPlayableVoices,
+  onVoicesChanged,
+  speak,
+  unlockAudio,
+  type VoiceOption,
+} from '../audio'
+import type { Progress } from '../storage'
 
 type Mood = 'idle' | 'happy' | 'oops' | 'cheer'
 
@@ -101,19 +110,83 @@ export function MuteButton({ muted, onToggle }: { muted: boolean; onToggle: () =
   )
 }
 
+function VoicePicker({
+  progress,
+  onChoose,
+}: {
+  progress: Progress
+  onChoose: (voiceURI: string, voiceName: string) => void
+}) {
+  const [voices, setVoices] = useState<VoiceOption[]>(() => listPlayableVoices())
+
+  useEffect(() => {
+    const refresh = () => setVoices(listPlayableVoices())
+    refresh()
+    return onVoicesChanged(refresh)
+  }, [])
+
+  const sample = `Hi ${displayName(progress.name)}! Let's learn the word see.`
+
+  return (
+    <div className="voice-picker">
+      <p className="tips-label">Voice</p>
+      <p className="voice-help">Pick a free browser voice for letters, words, and phrases. Goldie will not see this.</p>
+      {voices.length === 0 ? (
+        <p className="voice-help">No voices yet. Tap Preview once, then open Tips again.</p>
+      ) : (
+        <label className="voice-label" htmlFor="voice-select">
+          Spoken voice
+          <select
+            id="voice-select"
+            className="voice-select"
+            value={progress.voiceURI}
+            onChange={(event) => {
+              const uri = event.target.value
+              const match = voices.find((voice) => voice.voiceURI === uri)
+              onChoose(uri, match?.name ?? '')
+            }}
+          >
+            <option value="">Auto — best English on this device</option>
+            {voices.map((voice) => (
+              <option key={voice.voiceURI || `${voice.name}-${voice.lang}`} value={voice.voiceURI}>
+                {voice.name} · {voice.lang}
+                {voice.localService ? '' : ' (online)'}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      <button
+        type="button"
+        className="tiny-btn"
+        onClick={() => {
+          unlockAudio()
+          speak(sample, progress.muted, 0.95, true)
+        }}
+      >
+        Preview
+      </button>
+    </div>
+  )
+}
+
 export function TipsDrawer({
   open,
+  progress,
   onClose,
   onUnlockNext,
   onUnlockAll,
   onReset,
+  onVoice,
   canUnlock,
 }: {
   open: boolean
+  progress: Progress
   onClose: () => void
   onUnlockNext: () => void
   onUnlockAll: () => void
   onReset: () => void
+  onVoice: (voiceURI: string, voiceName: string) => void
   canUnlock: boolean
 }) {
   const [confirmReset, setConfirmReset] = useState(false)
@@ -138,6 +211,7 @@ export function TipsDrawer({
             ✕
           </button>
         </div>
+        <VoicePicker progress={progress} onChoose={onVoice} />
         <ul className="tips-list">
           <li>Keep sessions short — 5 to 10 minutes feels just right.</li>
           <li>Sit together the first few times so she hears the letters and words.</li>
