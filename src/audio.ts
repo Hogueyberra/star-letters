@@ -116,6 +116,11 @@ const SILENT_WAV =
 
 let htmlAudioUnlocked = false
 let unlockWork: Promise<boolean> | null = null
+let playSeq = 0
+let currentFinish: ((ok: boolean) => void) | null = null
+
+const SOUND_PROMPT_KEY = 'ui.what_letter_makes_the_sound'
+const SOUND_GAP_MS = 250
 
 function makeAudio() {
   const audio = new Audio()
@@ -132,25 +137,34 @@ function isAutoplayBlocked(error: unknown) {
   return name === 'NotAllowedError' || /not allowed|user (didn't|did not) interact|user gesture/i.test(message)
 }
 
-function stopClip() {
-  if (!currentClip) return
-  const audio = currentClip
-  currentClip = null
-  audio.onended = null
-  audio.onerror = null
-  audio.pause()
-  audio.removeAttribute('src')
-  try {
-    audio.load()
-  } catch {
-    // Resetting a torn-down element can throw on iOS.
-  }
-}
-
-export function stopSpeech() {
+function silenceBrowserVoice() {
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     window.speechSynthesis.cancel()
   }
+}
+
+function stopClip() {
+  const finish = currentFinish
+  currentFinish = null
+  if (currentClip) {
+    const audio = currentClip
+    currentClip = null
+    audio.onended = null
+    audio.onerror = null
+    audio.pause()
+    audio.removeAttribute('src')
+    try {
+      audio.load()
+    } catch {
+      // Resetting a torn-down element can throw on iOS.
+    }
+  }
+  finish?.(false)
+}
+
+export function stopSpeech() {
+  playSeq += 1
+  silenceBrowserVoice()
   stopClip()
 }
 
@@ -164,30 +178,34 @@ export function whenAudioUnlocked() {
 }
 
 function playUrl(url: string): Promise<boolean> {
+  silenceBrowserVoice()
   stopClip()
   if (typeof window === 'undefined') return Promise.resolve(false)
   const audio = makeAudio()
   currentClip = audio
   audio.src = url
-  return audio
-    .play()
-    .then(() => {
-      htmlAudioUnlocked = true
-      audio.onended = () => {
-        if (currentClip === audio) currentClip = null
-      }
-      audio.onerror = () => {
-        if (currentClip === audio) currentClip = null
-      }
-      return true
-    })
-    .catch((error: unknown) => {
-      if (isAutoplayBlocked(error)) htmlAudioUnlocked = false
-      if (currentClip === audio) {
-        stopClip()
-      }
-      return false
-    })
+  return new Promise((resolve) => {
+    let settled = false
+    const finish = (ok: boolean) => {
+      if (settled) return
+      settled = true
+      if (currentFinish === finish) currentFinish = null
+      if (currentClip === audio) currentClip = null
+      resolve(ok)
+    }
+    currentFinish = finish
+    audio.onended = () => finish(true)
+    audio.onerror = () => finish(false)
+    void audio
+      .play()
+      .then(() => {
+        htmlAudioUnlocked = true
+      })
+      .catch((error: unknown) => {
+        if (isAutoplayBlocked(error)) htmlAudioUnlocked = false
+        finish(false)
+      })
+  })
 }
 
 export function speakClip(key: string, muted: boolean, ignoreMute = false): Promise<boolean> {
@@ -203,7 +221,28 @@ export function speakSkill(
   muted: boolean,
   ignoreMute = false,
 ): Promise<boolean> {
+  if (skill === 'sound') return speakSoundQuestion(target, muted, ignoreMute)
   return speakClip(clipKeyFor(skill, target), muted, ignoreMute)
+}
+
+function wait(ms: number) {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, ms)
+  })
+}
+
+export async function speakSoundQuestion(
+  letter: string,
+  muted: boolean,
+  ignoreMute = false,
+): Promise<boolean> {
+  if (!ignoreMute && muted) return false
+  const seq = (playSeq += 1)
+  const prompted = await speakClip(SOUND_PROMPT_KEY, muted, ignoreMute)
+  if (seq !== playSeq) return false
+  if (prompted) await wait(SOUND_GAP_MS)
+  if (seq !== playSeq) return false
+  return speakClip(clipKeyFor('sound', letter), muted, ignoreMute)
 }
 
 export function speak(text: string, muted: boolean, _rate = 0.92, ignoreMute = false): Promise<boolean> {
@@ -271,9 +310,7 @@ function resumeAudioContext() {
 
 export function unlockAudio() {
   if (typeof window === 'undefined') return Promise.resolve(false)
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel()
-  }
+  silenceBrowserVoice()
   resumeAudioContext()
   if (htmlAudioUnlocked) return Promise.resolve(true)
   if (unlockWork) return unlockWork

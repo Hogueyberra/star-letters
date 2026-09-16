@@ -59,13 +59,14 @@ export function PlayRound({
   const done = status === 'done' || !question
 
   const speakQuestion = useCallback((q: Question, muted: boolean) => {
-    // Letter/sound/word/phrase MP3 only — never q.speak (that string was TTS).
+    // Letter names = phonetic clip only. Sounds = prompt clip + sound clip.
     return speakSkill(q.skill, q.target, muted)
   }, [])
 
   const hearQuestion = useCallback(
     (q: Question, muted: boolean) => {
       void unlockAudio()
+      stopSpeech()
       setTapToHear(false)
       void speakQuestion(q, muted)
     },

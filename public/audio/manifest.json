@@ -1,107 +1,107 @@
 {
   "letters.A": {
     "path": "letters/A_name.mp3",
-    "text": "A"
+    "text": "ay"
   },
   "letters.B": {
     "path": "letters/B_name.mp3",
-    "text": "B"
+    "text": "bee"
   },
   "letters.C": {
     "path": "letters/C_name.mp3",
-    "text": "C"
+    "text": "see"
   },
   "letters.D": {
     "path": "letters/D_name.mp3",
-    "text": "D"
+    "text": "dee"
   },
   "letters.E": {
     "path": "letters/E_name.mp3",
-    "text": "E"
+    "text": "ee"
   },
   "letters.F": {
     "path": "letters/F_name.mp3",
-    "text": "F"
+    "text": "eff"
   },
   "letters.G": {
     "path": "letters/G_name.mp3",
-    "text": "G"
+    "text": "jee"
   },
   "letters.H": {
     "path": "letters/H_name.mp3",
-    "text": "H"
+    "text": "aych"
   },
   "letters.I": {
     "path": "letters/I_name.mp3",
-    "text": "I"
+    "text": "eye"
   },
   "letters.J": {
     "path": "letters/J_name.mp3",
-    "text": "J"
+    "text": "jay"
   },
   "letters.K": {
     "path": "letters/K_name.mp3",
-    "text": "K"
+    "text": "kay"
   },
   "letters.L": {
     "path": "letters/L_name.mp3",
-    "text": "L"
+    "text": "ell"
   },
   "letters.M": {
     "path": "letters/M_name.mp3",
-    "text": "M"
+    "text": "em"
   },
   "letters.N": {
     "path": "letters/N_name.mp3",
-    "text": "N"
+    "text": "en"
   },
   "letters.O": {
     "path": "letters/O_name.mp3",
-    "text": "O"
+    "text": "oh"
   },
   "letters.P": {
     "path": "letters/P_name.mp3",
-    "text": "P"
+    "text": "pee"
   },
   "letters.Q": {
     "path": "letters/Q_name.mp3",
-    "text": "Q"
+    "text": "cue"
   },
   "letters.R": {
     "path": "letters/R_name.mp3",
-    "text": "R"
+    "text": "ar"
   },
   "letters.S": {
     "path": "letters/S_name.mp3",
-    "text": "S"
+    "text": "ess"
   },
   "letters.T": {
     "path": "letters/T_name.mp3",
-    "text": "T"
+    "text": "tee"
   },
   "letters.U": {
     "path": "letters/U_name.mp3",
-    "text": "U"
+    "text": "you"
   },
   "letters.V": {
     "path": "letters/V_name.mp3",
-    "text": "V"
+    "text": "vee"
   },
   "letters.W": {
     "path": "letters/W_name.mp3",
-    "text": "W"
+    "text": "double you"
   },
   "letters.X": {
     "path": "letters/X_name.mp3",
-    "text": "X"
+    "text": "ex"
   },
   "letters.Y": {
     "path": "letters/Y_name.mp3",
-    "text": "Y"
+    "text": "why"
   },
   "letters.Z": {
     "path": "letters/Z_name.mp3",
-    "text": "Z"
+    "text": "zee"
   },
   "sounds.a": {
     "path": "sounds/a_sound.mp3",
@@ -626,5 +626,9 @@
   "ui.lets_learn": {
     "path": "ui/lets_learn.mp3",
     "text": "Let's learn!"
+  },
+  "ui.what_letter_makes_the_sound": {
+    "path": "ui/what_letter_makes_the_sound.mp3",
+    "text": "What letter makes the sound"
   }
 }
