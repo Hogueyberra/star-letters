@@ -13,6 +13,14 @@ npm run dev
 
 Then open the local URL Vite prints (this project uses **http://127.0.0.1:4545**).
 
+## On your phone
+
+GitHub Pages hosts the app at:
+
+**https://nickhogue.github.io/star-letters/**
+
+Pushes to `main` rebuild and republish automatically. Bookmark that link on your phone.
+
 ```bash
 npm run build
 ```
