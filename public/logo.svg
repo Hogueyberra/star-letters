@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Star Letters logo">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9be7ff"/>
+      <stop offset="1" stop-color="#4aa3f0"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="32" fill="url(#sky)"/>
+  <circle cx="24" cy="22" r="6" fill="#fff" opacity=".85"/>
+  <circle cx="98" cy="28" r="8" fill="#fff" opacity=".7"/>
+  <path
+    d="M60 16l11.4 23.1 25.5 3.7-18.45 18 4.35 25.4L60 74.4 37.2 86.2l4.35-25.4-18.45-18 25.5-3.7z"
+    fill="#ffd166"
+    stroke="#fff"
+    stroke-width="4"
+    stroke-linejoin="round"
+  />
+  <circle cx="51" cy="52" r="4" fill="#5b3a1a"/>
+  <circle cx="69" cy="52" r="4" fill="#5b3a1a"/>
+  <path d="M51 63c3 5.2 15 5.2 18 0" fill="none" stroke="#e85d75" stroke-width="3.5" stroke-linecap="round"/>
+  <text x="60" y="108" text-anchor="middle" font-family="Fredoka, Nunito, sans-serif" font-size="18" font-weight="700" fill="#fff">Aa</text>
+</svg>
