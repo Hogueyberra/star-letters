@@ -17,7 +17,7 @@ Then open the local URL Vite prints (this project uses **http://127.0.0.1:4545**
 
 GitHub Pages hosts the app at:
 
-**https://nickhogue.github.io/star-letters/**
+**https://hogueyberra.github.io/star-letters/**
 
 Pushes to `main` rebuild and republish automatically. Bookmark that link on your phone.
 
