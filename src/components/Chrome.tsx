@@ -142,16 +142,20 @@ export function TipsDrawer({
           <li>Keep sessions short — 5 to 10 minutes feels just right.</li>
           <li>Sit together the first few times so she hears the letters and words.</li>
           <li>Wrong answers are gentle retries. Celebrate the trying!</li>
-          <li>A letter or sight word is “mastered” after 3 correct answers.</li>
-          <li>Finishing a sight-word set unlocks the next one automatically.</li>
+          <li>A letter, word, or phrase is “mastered” after 3 correct answers.</li>
+          <li>
+            Units follow Goldie’s Fountain Valley (FVSD 2022) lists: Words 1 → Phrases 1 → Words 2 → … → Review
+            Words.
+          </li>
+          <li>About 80% mastery on a unit (8 of 10) unlocks the next one. You can also unlock it here.</li>
         </ul>
         <p className="tips-label">Parent shortcuts</p>
         <div className="tips-actions">
           <button type="button" className="tiny-btn" onClick={onUnlockNext} disabled={!canUnlock}>
-            Unlock next set
+            Unlock next unit
           </button>
           <button type="button" className="tiny-btn" onClick={onUnlockAll}>
-            Unlock all sets
+            Unlock all units
           </button>
           {confirmReset ? (
             <button

@@ -1,21 +1,25 @@
 import {
-  ALL_SIGHT_WORDS,
+  ALL_PHRASES,
+  ALL_WORDS,
   LETTERS,
   LETTER_NAMES,
   LETTER_SOUNDS,
   LOOKALIKES,
   QUESTIONS_PER_ROUND,
-  SIGHT_SETS,
   SOUND_LETTERS,
-  speakSightWord,
+  UNITS,
+  WORD_UNITS,
+  speakItem,
+  unitById,
+  type Unit,
 } from './data'
 import type { Progress } from './storage'
 
-export type DisplayKind = 'letter-upper' | 'letter-lower' | 'word' | 'speaker'
+export type DisplayKind = 'letter-upper' | 'letter-lower' | 'word' | 'phrase' | 'speaker'
 
 export type Question = {
   id: string
-  skill: 'letter' | 'sound' | 'word'
+  skill: 'letter' | 'sound' | 'word' | 'phrase'
   target: string
   prompt: string
   speak: string
@@ -178,17 +182,25 @@ export function buildLetterSoundQuestions(progress: Progress): Question[] {
   })
 }
 
-function wordDecoys(correct: string, extra: string[], count: number) {
-  const pool = shuffle([...extra, ...ALL_SIGHT_WORDS]).filter(
-    (word, index, arr) => word !== correct && arr.indexOf(word) === index,
+function itemDecoys(correct: string, sameUnit: string[], extra: string[], count: number) {
+  const pool = shuffle([...sameUnit.filter((item) => item !== correct), ...extra]).filter(
+    (item, index, arr) => item !== correct && arr.indexOf(item) === index,
   )
   return pool.slice(0, count)
 }
 
-export function buildSightQuestions(setId: string): Question[] {
-  const set = SIGHT_SETS.find((item) => item.id === setId) ?? SIGHT_SETS[0]
-  const words = set?.words ?? ['I', 'a', 'the', 'to', 'and']
-  const extra = SIGHT_SETS.filter((item) => item.id !== setId).flatMap((item) => item.words)
+function fillItems(items: string[], count: number) {
+  const filled = [...shuffle(items)]
+  while (filled.length < count) {
+    filled.push(...shuffle(items))
+  }
+  return filled.slice(0, count)
+}
+
+export function buildWordQuestions(unitId: string): Question[] {
+  const unit = unitById(unitId)
+  const words = unit.items
+  const extra = ALL_WORDS
   const sequence: Array<'flash' | 'match' | 'find'> = shuffle([
     'flash',
     'flash',
@@ -199,62 +211,121 @@ export function buildSightQuestions(setId: string): Question[] {
     'find',
     'find',
   ])
+  const picked = fillItems(words, sequence.length)
 
   return sequence.map((kind, index) => {
-    const word = words[index % words.length] ?? 'the'
+    const word = picked[index] ?? 'the'
     if (kind === 'flash') {
       return {
         id: uid(),
-        skill: 'word',
+        skill: 'word' as const,
         target: word,
         prompt: 'Look · listen · tap',
-        speak: speakSightWord(word),
+        speak: speakItem(word),
         display: word,
-        displayKind: 'word',
+        displayKind: 'word' as const,
         choices: [],
         answer: word,
-        style: 'flash',
+        style: 'flash' as const,
       }
     }
     if (kind === 'match') {
       return {
         id: uid(),
-        skill: 'word',
+        skill: 'word' as const,
         target: word,
         prompt: 'Tap the word you hear',
-        speak: `Tap the word ${speakSightWord(word)}.`,
+        speak: `Tap the word ${speakItem(word)}.`,
         display: '',
-        displayKind: 'speaker',
-        choices: shuffle([word, ...wordDecoys(word, extra, 3)]),
+        displayKind: 'speaker' as const,
+        choices: shuffle([word, ...itemDecoys(word, words, extra, 3)]),
         answer: word,
-        style: 'choice',
+        style: 'choice' as const,
       }
     }
     return {
       id: uid(),
-      skill: 'word',
+      skill: 'word' as const,
       target: word,
       prompt: 'Find this word',
-      speak: `Find the word ${speakSightWord(word)}.`,
+      speak: `Find the word ${speakItem(word)}.`,
       display: word,
-      displayKind: 'word',
-      choices: shuffle([word, ...wordDecoys(word, extra, 5)]),
+      displayKind: 'word' as const,
+      choices: shuffle([word, ...itemDecoys(word, words, extra, 5)]),
       answer: word,
-      style: 'choice',
+      style: 'choice' as const,
     }
   })
+}
+
+export function buildPhraseQuestions(unitId: string): Question[] {
+  const unit = unitById(unitId)
+  const phrases = unit.items
+  const extra = ALL_PHRASES
+  const sequence: Array<'flash' | 'match'> = shuffle([
+    'flash',
+    'flash',
+    'match',
+    'match',
+    'match',
+    'match',
+    'match',
+    'match',
+  ])
+  const picked = fillItems(phrases, sequence.length)
+
+  return sequence.map((kind, index) => {
+    const phrase = picked[index] ?? 'I go'
+    if (kind === 'flash') {
+      return {
+        id: uid(),
+        skill: 'phrase' as const,
+        target: phrase,
+        prompt: 'Look · listen · tap',
+        speak: speakItem(phrase),
+        speakRate: 0.84,
+        display: phrase,
+        displayKind: 'phrase' as const,
+        choices: [],
+        answer: phrase,
+        style: 'flash' as const,
+      }
+    }
+    return {
+      id: uid(),
+      skill: 'phrase' as const,
+      target: phrase,
+      prompt: 'Tap the phrase you hear',
+      speak: `Tap ${speakItem(phrase)}.`,
+      speakRate: 0.84,
+      display: '',
+      displayKind: 'speaker' as const,
+      choices: shuffle([phrase, ...itemDecoys(phrase, phrases, extra, 3)]),
+      answer: phrase,
+      style: 'choice' as const,
+    }
+  })
+}
+
+function unlockedItems(progress: Progress, kind: Unit['kind']) {
+  const units = UNITS.filter((unit) => unit.kind === kind && progress.unlockedUnits.includes(unit.id))
+  const items = units.flatMap((unit) => unit.items)
+  const unique = items.filter((item, index) => items.indexOf(item) === index)
+  return unique
 }
 
 export function buildMixQuestions(progress: Progress): Question[] {
   const letterQs = buildLetterNameQuestions(progress).slice(0, 2)
   const soundQs = buildLetterSoundQuestions(progress).slice(0, 2)
+  const words = unlockedItems(progress, 'words')
+  const phrases = unlockedItems(progress, 'phrases')
+  const wordPool = words.length > 0 ? words : (WORD_UNITS[0]?.items ?? ['I', 'a', 'the'])
+  const extraWords = ALL_WORDS
+  const extraPhrases = ALL_PHRASES
 
-  const unlockedWords = SIGHT_SETS.filter((set) => progress.unlockedSets.includes(set.id)).flatMap((set) => set.words)
-  const learned = progress.wordsMastered.length > 0 ? progress.wordsMastered : unlockedWords
-  const wordPool = learned.length > 0 ? learned : (SIGHT_SETS[0]?.words ?? ['I', 'a', 'the'])
-  const extra = ALL_SIGHT_WORDS
+  const wordCount = phrases.length > 0 ? 2 : 4
   const wordQs: Question[] = shuffle(wordPool)
-    .slice(0, 4)
+    .slice(0, wordCount)
     .map((word, index) => {
       if (index % 2 === 0) {
         return {
@@ -262,10 +333,10 @@ export function buildMixQuestions(progress: Progress): Question[] {
           skill: 'word' as const,
           target: word,
           prompt: 'Tap the word you hear',
-          speak: `Tap the word ${speakSightWord(word)}.`,
+          speak: `Tap the word ${speakItem(word)}.`,
           display: '',
           displayKind: 'speaker' as const,
-          choices: shuffle([word, ...wordDecoys(word, extra, 3)]),
+          choices: shuffle([word, ...itemDecoys(word, wordPool, extraWords, 3)]),
           answer: word,
           style: 'choice' as const,
         }
@@ -275,14 +346,38 @@ export function buildMixQuestions(progress: Progress): Question[] {
         skill: 'word' as const,
         target: word,
         prompt: 'Find this word',
-        speak: `Find the word ${speakSightWord(word)}.`,
+        speak: `Find the word ${speakItem(word)}.`,
         display: word,
         displayKind: 'word' as const,
-        choices: shuffle([word, ...wordDecoys(word, extra, 3)]),
+        choices: shuffle([word, ...itemDecoys(word, wordPool, extraWords, 3)]),
         answer: word,
         style: 'choice' as const,
       }
     })
 
-  return shuffle([...letterQs, ...soundQs, ...wordQs]).slice(0, QUESTIONS_PER_ROUND)
+  const phraseQs: Question[] =
+    phrases.length === 0
+      ? []
+      : shuffle(phrases)
+          .slice(0, 2)
+          .map((phrase) => ({
+            id: uid(),
+            skill: 'phrase' as const,
+            target: phrase,
+            prompt: 'Tap the phrase you hear',
+            speak: `Tap ${speakItem(phrase)}.`,
+            speakRate: 0.84,
+            display: '',
+            displayKind: 'speaker' as const,
+            choices: shuffle([phrase, ...itemDecoys(phrase, phrases, extraPhrases, 3)]),
+            answer: phrase,
+            style: 'choice' as const,
+          }))
+
+  return shuffle([...letterQs, ...soundQs, ...wordQs, ...phraseQs]).slice(0, QUESTIONS_PER_ROUND)
+}
+
+export function buildUnitQuestions(unitId: string) {
+  const unit = unitById(unitId)
+  return unit.kind === 'phrases' ? buildPhraseQuestions(unitId) : buildWordQuestions(unitId)
 }

@@ -6,7 +6,7 @@ import {
   recordBestStreak,
   recordLetterCorrect,
   recordStarOnly,
-  recordWordCorrect,
+  recordItemCorrect,
   type Progress,
 } from '../storage'
 import { Confetti, MuteButton, StarMascot } from './Chrome'
@@ -115,8 +115,11 @@ export function PlayRound({
     const correct = choice === question.answer
     if (correct) {
       let nextProgress = progressRef.current
-      if (question.skill === 'word') nextProgress = recordWordCorrect(nextProgress, question.target)
-      else nextProgress = recordLetterCorrect(nextProgress, question.target)
+      if (question.skill === 'word' || question.skill === 'phrase') {
+        nextProgress = recordItemCorrect(nextProgress, question.target)
+      } else {
+        nextProgress = recordLetterCorrect(nextProgress, question.target)
+      }
       award(nextProgress, streak + 1)
       return
     }
@@ -186,7 +189,14 @@ export function PlayRound({
   }
 
   const showHint = wrongPicks.length >= 2
-  const choiceClass = question.choices.length > 4 ? 'choices choices-wide' : 'choices'
+  const phraseChoices = question.skill === 'phrase' || question.choices.some((choice) => choice.includes(' '))
+  const choiceClass = [
+    'choices',
+    question.choices.length > 4 ? 'choices-wide' : '',
+    phraseChoices ? 'choices-phrase' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <section className="game">
@@ -261,6 +271,7 @@ export function PlayRound({
                 type="button"
                 className={[
                   'choice-btn',
+                  phraseChoices ? 'phrase-choice' : '',
                   shake === choice ? 'shake' : '',
                   isWrong ? 'wrong' : '',
                   showHint && isAnswer ? 'hint' : '',

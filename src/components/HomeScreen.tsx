@@ -1,8 +1,8 @@
-import { displayName, SIGHT_SETS } from '../data'
-import type { Progress } from '../storage'
+import { displayName, PHRASE_UNITS, UNITS, WORD_UNITS, type UnitKind } from '../data'
+import { focusStatus, masteredInUnit, type Progress } from '../storage'
 import { MuteButton, StarMascot } from './Chrome'
 
-type Mode = 'letters' | 'sounds' | 'sight' | 'mix'
+type Mode = 'letters' | 'sounds' | 'words' | 'phrases' | 'mix'
 
 export function HomeScreen({
   progress,
@@ -18,6 +18,8 @@ export function HomeScreen({
   onPlay: (mode: Mode) => void
 }) {
   const hello = displayName(progress.name)
+  const focus = focusStatus(progress)
+  const percent = Math.round((focus.mastered / focus.total) * 100)
 
   return (
     <section className="home">
@@ -47,7 +49,7 @@ export function HomeScreen({
             id="kid-name"
             className="name-input"
             value={progress.name}
-            placeholder="Friend"
+            placeholder="Goldie"
             maxLength={18}
             autoComplete="nickname"
             onChange={(event) => onName(event.target.value)}
@@ -63,6 +65,25 @@ export function HomeScreen({
         </div>
       </div>
 
+      <div className="unit-banner">
+        {focus.allDone ? (
+          <p>
+            You finished the FVSD list, <span>{hello}</span>! Keep playing Review Words.
+          </p>
+        ) : (
+          <p>
+            Now: <strong>{focus.unit.label}</strong>
+            <span className="unit-count">
+              {' '}
+              · {focus.mastered}/{focus.total} mastered ({focus.needed} unlocks the next unit)
+            </span>
+          </p>
+        )}
+        <div className="unit-meter" aria-hidden="true">
+          <span style={{ width: `${Math.min(100, percent)}%` }} />
+        </div>
+      </div>
+
       <div className="mode-grid">
         <button type="button" className="mode-card coral" onClick={() => onPlay('letters')}>
           <span className="mode-glyph">Aa</span>
@@ -74,29 +95,42 @@ export function HomeScreen({
           <span className="mode-title">Sounds</span>
           <span className="mode-sub">What letters say</span>
         </button>
-        <button type="button" className="mode-card lavender" onClick={() => onPlay('sight')}>
+        <button type="button" className="mode-card lavender" onClick={() => onPlay('words')}>
           <span className="mode-glyph">the</span>
-          <span className="mode-title">Sight Words</span>
-          <span className="mode-sub">{progress.unlockedSets.length} sets ready</span>
+          <span className="mode-title">Words</span>
+          <span className="mode-sub">FVSD sight words</span>
         </button>
-        <button type="button" className="mode-card sun" onClick={() => onPlay('mix')}>
+        <button type="button" className="mode-card peach" onClick={() => onPlay('phrases')}>
+          <span className="mode-glyph">I go</span>
+          <span className="mode-title">Phrases</span>
+          <span className="mode-sub">Flash, hear, match</span>
+        </button>
+        <button type="button" className="mode-card sun wide" onClick={() => onPlay('mix')}>
           <span className="mode-glyph">★</span>
-          <span className="mode-title">Mix Review</span>
-          <span className="mode-sub">A little of everything</span>
+          <span className="mode-copy">
+            <span className="mode-title">Mix Review</span>
+            <span className="mode-sub">Letters, words, and phrases together</span>
+          </span>
         </button>
       </div>
 
-      {(progress.lettersMastered.length > 0 || progress.wordsMastered.length > 0) && (
+      {(progress.lettersMastered.length > 0 || progress.itemsMastered.length > 0) && (
         <p className="mastery-line">
           You know {progress.lettersMastered.length} letters
-          {progress.wordsMastered.length > 0 ? ` · ${progress.wordsMastered.length} sight words` : ''}
+          {progress.itemsMastered.length > 0 ? ` · ${progress.itemsMastered.length} words & phrases` : ''}
         </p>
       )}
 
-      <p className="set-preview">
-        {SIGHT_SETS.map((set) => (
-          <span key={set.id} className={progress.unlockedSets.includes(set.id) ? 'set-chip on' : 'set-chip'}>
-            {set.id}
+      <p className="set-preview" aria-label="Unit path">
+        {UNITS.map((unit) => (
+          <span
+            key={unit.id}
+            className={`set-chip ${progress.unlockedUnits.includes(unit.id) ? 'on' : ''} ${
+              unit.id === focus.unit.id ? 'current' : ''
+            }`}
+            title={unit.label}
+          >
+            {unit.short}
           </span>
         ))}
       </p>
@@ -104,48 +138,59 @@ export function HomeScreen({
   )
 }
 
-export function SightPicker({
+export function UnitPicker({
+  kind,
   progress,
   onBack,
   onMute,
   onChoose,
 }: {
+  kind: UnitKind
   progress: Progress
   onBack: () => void
   onMute: () => void
-  onChoose: (setId: string) => void
+  onChoose: (unitId: string) => void
 }) {
+  const units = kind === 'phrases' ? PHRASE_UNITS : WORD_UNITS
+  const title = kind === 'phrases' ? 'Phrases' : 'Words'
+  const anyUnlocked = units.some((unit) => progress.unlockedUnits.includes(unit.id))
+  const lead = !anyUnlocked
+    ? 'This unlocks after the unit before it — or a grown-up can open Tips.'
+    : kind === 'phrases'
+      ? 'Look, listen, and tap the matching phrase.'
+      : 'Flash, match, and find — FVSD sight words.'
+
   return (
     <section className="home sight-home">
       <header className="topbar">
         <button type="button" className="icon-btn" onClick={onBack} aria-label="Back home">
           ←
         </button>
-        <h1 className="screen-title">Sight Words</h1>
+        <h1 className="screen-title">{title}</h1>
         <div className="top-actions">
           <span className="star-mini">⭐ {progress.stars}</span>
           <MuteButton muted={progress.muted} onToggle={onMute} />
         </div>
       </header>
-      <p className="picker-lead">Pick a set. Flash, match, and find are mixed in for you.</p>
+      <p className="picker-lead">{lead}</p>
       <div className="set-grid">
-        {SIGHT_SETS.map((set) => {
-          const unlocked = progress.unlockedSets.includes(set.id)
-          const masteredCount = set.words.filter((word) => progress.wordsMastered.includes(word)).length
+        {units.map((unit) => {
+          const unlocked = progress.unlockedUnits.includes(unit.id)
+          const masteredCount = masteredInUnit(unit, progress)
           return (
             <button
-              key={set.id}
+              key={unit.id}
               type="button"
               className={`set-card ${unlocked ? '' : 'locked'}`}
-              style={{ ['--set-color' as string]: set.color }}
-              onClick={() => unlocked && onChoose(set.id)}
+              style={{ ['--set-color' as string]: unit.color }}
+              onClick={() => unlocked && onChoose(unit.id)}
               disabled={!unlocked}
-              aria-label={unlocked ? `${set.label}: ${set.words.join(', ')}` : `${set.label} locked`}
+              aria-label={unlocked ? `${unit.label}: ${unit.items.join(', ')}` : `${unit.label} locked`}
             >
-              <span className="set-name">{unlocked ? set.label : `🔒 ${set.label}`}</span>
-              <span className="set-words">{set.words.join('  ·  ')}</span>
+              <span className="set-name">{unlocked ? unit.label : `🔒 ${unit.label}`}</span>
+              <span className={`set-words ${kind === 'phrases' ? 'set-phrases' : ''}`}>{unit.items.join('  ·  ')}</span>
               <span className="set-progress">
-                {masteredCount}/{set.words.length} mastered
+                {masteredCount}/{unit.items.length} mastered
               </span>
             </button>
           )

@@ -1,8 +1,8 @@
 # Star Letters
 
-A bright, playful practice app for a kindergarten reader. She can learn **letter names**, **letter sounds**, and **sight words** with big buttons, cheerful colors, spoken audio, and stars for progress.
+A bright, playful practice app for **Goldie** — letter names, letter sounds, and her Fountain Valley School District (FVSD **2022**) kindergarten word and phrase lists.
 
-Built for Nick to open on a laptop or tablet — no account, no internet required after install.
+Built for Nick to open on a laptop or tablet. No account needed.
 
 ## Quick start
 
@@ -13,39 +13,53 @@ npm run dev
 
 Then open the local URL Vite prints (this project uses **http://127.0.0.1:4545**).
 
-To make a folder you can host anywhere (Netlify, GitHub Pages, a shared folder):
-
 ```bash
 npm run build
 ```
 
 The finished site lands in `dist/`. Preview it with `npm run preview`.
 
-## How she plays
+## How Goldie plays
 
-1. Type her name on the home screen (or leave it blank — she will be **Friend**).
-2. Pick a mode: **Letters**, **Sounds**, **Sight Words**, or **Mix Review**.
-3. Tap huge answer buttons. Correct answers earn stars and a little celebration. Wrong answers get a gentle “try again,” never a harsh fail.
-4. The speaker reads letters, sounds, and words out loud. Use the mute button anytime.
+The home screen greets **Hi Goldie!** (the name is editable). It also shows which FVSD unit she’s on.
 
-**Sight word sets**
+1. Pick a mode: **Letters**, **Sounds**, **Words**, **Phrases**, or **Mix Review**.
+2. Tap huge answer buttons. Correct answers earn stars. Wrong answers get a gentle “try again.”
+3. The speaker reads letters, sounds, words, and phrases. Mute anytime.
 
-- Set A: I, a, the, to, and
-- Set B: you, is, it, in, at
-- Set C: me, my, we, go, see
-- Set D: can, look, like, for, on
-- Set E: he, she, said, come, here
+Alphabet modes stay in the mix — she’s still shaky on letters.
 
-A set unlocks when she masters the words in the set before it (3 correct answers per word). A grown-up can also unlock sets from **Tips**.
+## FVSD 2022 units (unlock in this order)
 
-**Mix Review** mixes shaky letters with sight words she already unlocked.
+A unit unlocks when she masters about **80%** of it (8 of 10 items, after 3 correct answers each). A grown-up can also tap **Unlock next unit** in **Tips**.
+
+**Words 1:** I, a, go, see, the, to, is, and, in, can  
+**Phrases 1:** I go, a can, go in, I see, I see the, go to, is the, and see, in the, can see
+
+**Words 2:** you, he, like, we, it, up, no, at, my, an  
+**Phrases 2:** you can, he is, I like, we can, it is, up to, no go, at the, can my, see an
+
+**Words 3:** me, do, on, am, so, come, was, are, as, his  
+**Phrases 3:** like me, can do it, is on, I am, so you can, come to, it was, you are, as I go, I see his
+
+**Words 4:** they, be, have, from, or, one, by, she, has, for  
+**Phrases 4:** they like to, it can be, I have, from the, you or, the one, by his, she has, I can go, for his
+
+**Words 5:** of, what, your, said, how, out, her, into, look, two  
+**Phrases 5:** out of the, What is it, I see your, he said no, how do I, he is out, it was her, into the can, look for the, he is two
+
+**Review Words:** you, come, are, was, they, have, from, what, said, how
+
+**Phrases** uses flash (see it, hear it, tap) and hear-and-match with big readable text.
+
+**Mix Review** mixes shaky letters with words and phrases she has already unlocked.
 
 ## Parent tips
 
 - Keep sessions short — 5 to 10 minutes.
 - Sit with her the first few times so she hears the speech.
-- Progress (stars, mastered letters and words, unlocked sets, mute, name) is saved in this browser with `localStorage`.
-- Open **Tips** on the home screen to unlock sets or reset progress.
+- Progress (stars, mastered letters/words/phrases, unlocked units, mute, name) is saved in this browser with `localStorage`.
+- Open **Tips** on the home screen to unlock the next unit or reset progress.
 
 Audio uses the browser’s **Web Speech API** (`speechSynthesis`). Chrome, Edge, and Safari work well. The first tap on the page wakes up sound.
 

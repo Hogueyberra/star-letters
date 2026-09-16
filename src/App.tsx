@@ -1,35 +1,32 @@
 import { useEffect, useState } from 'react'
 import { initAudio, stopSpeech, unlockAudio } from './audio'
-import { SIGHT_SETS } from './data'
+import { unitById, type UnitKind } from './data'
 import {
   buildLetterNameQuestions,
   buildLetterSoundQuestions,
   buildMixQuestions,
-  buildSightQuestions,
+  buildUnitQuestions,
 } from './quiz'
 import {
+  canUnlockMore,
   loadProgress,
-  saveProgress,
-  unlockAllSets,
-  unlockNextSet,
   resetProgress,
+  saveProgress,
+  unlockAllUnits,
+  unlockNextUnit,
   type Progress,
 } from './storage'
 import { SkyDecor, TipsDrawer } from './components/Chrome'
-import { HomeScreen, SightPicker } from './components/HomeScreen'
+import { HomeScreen, UnitPicker } from './components/HomeScreen'
 import { PlayRound } from './components/PlayRound'
 
 type Screen =
   | { name: 'home' }
   | { name: 'letters' }
   | { name: 'sounds' }
-  | { name: 'sight-pick' }
-  | { name: 'sight-play'; setId: string }
+  | { name: 'unit-pick'; kind: UnitKind }
+  | { name: 'unit-play'; unitId: string; kind: UnitKind }
   | { name: 'mix' }
-
-function canUnlockMore(progress: Progress) {
-  return SIGHT_SETS.some((set) => !progress.unlockedSets.includes(set.id))
-}
 
 export default function App() {
   const [progress, setProgress] = useState<Progress>(() => loadProgress())
@@ -61,6 +58,8 @@ export default function App() {
     })
   }
 
+  const playingUnit = screen.name === 'unit-play' ? unitById(screen.unitId) : undefined
+
   return (
     <div className="app-shell">
       <SkyDecor />
@@ -74,7 +73,8 @@ export default function App() {
             unlockAudio()
             if (mode === 'letters') setScreen({ name: 'letters' })
             else if (mode === 'sounds') setScreen({ name: 'sounds' })
-            else if (mode === 'sight') setScreen({ name: 'sight-pick' })
+            else if (mode === 'words') setScreen({ name: 'unit-pick', kind: 'words' })
+            else if (mode === 'phrases') setScreen({ name: 'unit-pick', kind: 'phrases' })
             else setScreen({ name: 'mix' })
           }}
         />
@@ -103,25 +103,26 @@ export default function App() {
           onAgain={() => setPlayNonce((n) => n + 1)}
         />
       )}
-      {screen.name === 'sight-pick' && (
-        <SightPicker
+      {screen.name === 'unit-pick' && (
+        <UnitPicker
+          kind={screen.kind}
           progress={progress}
           onBack={goHome}
           onMute={toggleMute}
-          onChoose={(setId) => setScreen({ name: 'sight-play', setId })}
+          onChoose={(unitId) => setScreen({ name: 'unit-play', unitId, kind: screen.kind })}
         />
       )}
-      {screen.name === 'sight-play' && (
+      {screen.name === 'unit-play' && (
         <PlayRound
-          key={`sight-${screen.setId}-${playNonce}`}
-          title={`Sight Words ${screen.setId}`}
-          makeQuestions={() => buildSightQuestions(screen.setId)}
+          key={`unit-${screen.unitId}-${playNonce}`}
+          title={playingUnit?.label ?? 'Practice'}
+          makeQuestions={() => buildUnitQuestions(screen.unitId)}
           progress={progress}
           onProgress={setProgress}
           onMute={toggleMute}
           onHome={() => {
             stopSpeech()
-            setScreen({ name: 'sight-pick' })
+            setScreen({ name: 'unit-pick', kind: screen.kind })
           }}
           onAgain={() => setPlayNonce((n) => n + 1)}
         />
@@ -142,8 +143,8 @@ export default function App() {
         open={tipsOpen}
         onClose={() => setTipsOpen(false)}
         canUnlock={canUnlockMore(progress)}
-        onUnlockNext={() => setProgress((prev) => unlockNextSet(prev))}
-        onUnlockAll={() => setProgress((prev) => unlockAllSets(prev))}
+        onUnlockNext={() => setProgress((prev) => unlockNextUnit(prev))}
+        onUnlockAll={() => setProgress((prev) => unlockAllUnits(prev))}
         onReset={() => setProgress((prev) => resetProgress(prev.name, prev.muted))}
       />
     </div>
